@@ -1,0 +1,8 @@
+[deployment]
+watsonx_apikey = "" # Your IBM Cloud API key
+watsonx_url = "" # Your Watson X URL (e.g. "https://us-south.ml.cloud.ibm.com")
+space_id = "" # Your Watson X project or space ID
+
+[deployment.online.parameters]
+space_id = "" # Same as above
+url = "" # Deployment URL 

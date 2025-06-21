@@ -1,0 +1,20 @@
+{
+  "name": "accessibility-testing",
+  "version": "1.0.0",
+  "description": "Automated accessibility testing plugin for QAGenie",
+  "author": "QAGenie Team",
+  "main": "index.js",
+  "hooks": [
+    {
+      "name": "test:before-run",
+      "handler": "beforeTestRun",
+      "priority": 10
+    },
+    {
+      "name": "test:after-step",
+      "handler": "afterTestStep",
+      "priority": 5
+    }
+  ],
+  "dependencies": {}
+} 

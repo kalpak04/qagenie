@@ -1,0 +1,44 @@
+{
+  "name": "qa-genie-server",
+  "version": "1.0.0",
+  "description": "Backend for QA-Genie application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "seed": "node scripts/seed.js",
+    "create-indexes": "node scripts/create-indexes.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "qa",
+    "automation",
+    "api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.5.0",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^7.5.1",
+    "helmet": "^8.1.0",
+    "joi": "^17.9.2",
+    "jsonwebtoken": "^9.0.1",
+    "mongodb": "^6.17.0",
+    "mongoose": "^7.4.2",
+    "multer": "^1.4.5-lts.1",
+    "openai": "^4.0.0",
+    "pdf-parse": "^1.1.1",
+    "simple-git": "^3.19.1",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.6.0",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  }
+}

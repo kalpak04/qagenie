@@ -1,0 +1,1108 @@
+{
+	"info": {
+		"_postman_id": "5e8c6f4c-3b4a-4e10-8f1e-9a3c40d82b5a",
+		"name": "QA Genie API",
+		"description": "A collection for testing the QA Genie API endpoints.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Test User\",\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user"
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData && jsonData.token) {",
+									"    pm.environment.set('authToken', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"test@example.com\",\r\n    \"password\": \"password123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with existing user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/me",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get the current logged in user"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints"
+		},
+		{
+			"name": "PRDs",
+			"item": [
+				{
+					"name": "Create PRD",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Sample PRD\",\r\n    \"description\": \"This is a sample PRD for testing\",\r\n    \"content\": \"# Introduction\\n\\nThis is a test PRD for the QA Genie application.\\n\\n## Features\\n\\n- Feature 1\\n- Feature 2\\n\\n## Requirements\\n\\n1. Requirement 1\\n2. Requirement 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/prd",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"prd"
+							]
+						},
+						"description": "Create a new PRD"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All PRDs",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/prd",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"prd"
+							]
+						},
+						"description": "Get all PRDs for the current user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get PRD",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/prd/{{prdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"prd",
+								"{{prdId}}"
+							]
+						},
+						"description": "Get a specific PRD by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update PRD",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Updated PRD Title\",\r\n    \"description\": \"This PRD has been updated\",\r\n    \"content\": \"# Updated Content\\n\\nThis PRD has been updated for testing.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/prd/{{prdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"prd",
+								"{{prdId}}"
+							]
+						},
+						"description": "Update an existing PRD"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete PRD",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/prd/{{prdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"prd",
+								"{{prdId}}"
+							]
+						},
+						"description": "Delete a specific PRD"
+					},
+					"response": []
+				},
+				{
+					"name": "Generate Test Cases",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"options\": {\r\n        \"coverage\": \"high\",\r\n        \"priority\": \"critical\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/prd/{{prdId}}/generate-test-cases",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"prd",
+								"{{prdId}}",
+								"generate-test-cases"
+							]
+						},
+						"description": "Generate test cases from a PRD"
+					},
+					"response": []
+				}
+			],
+			"description": "PRD (Product Requirements Document) endpoints"
+		},
+		{
+			"name": "Test Cases",
+			"item": [
+				{
+					"name": "Create Test Case",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Login Test Case\",\r\n    \"description\": \"Test user login functionality\",\r\n    \"preconditions\": \"User account exists in the system\",\r\n    \"steps\": [\r\n        {\r\n            \"step\": \"1\",\r\n            \"action\": \"Navigate to login page\"\r\n        },\r\n        {\r\n            \"step\": \"2\",\r\n            \"action\": \"Enter valid credentials\"\r\n        },\r\n        {\r\n            \"step\": \"3\",\r\n            \"action\": \"Click login button\"\r\n        }\r\n    ],\r\n    \"expectedResults\": [\"User is logged in\", \"User is redirected to dashboard\"],\r\n    \"priority\": \"must-have\",\r\n    \"tags\": [\"login\", \"authentication\"],\r\n    \"prd\": \"{{prdId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/testcases",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"testcases"
+							]
+						},
+						"description": "Create a new test case"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Test Cases",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/testcases",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"testcases"
+							]
+						},
+						"description": "Get all test cases for the current user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Test Case",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/testcases/{{testCaseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"testcases",
+								"{{testCaseId}}"
+							]
+						},
+						"description": "Get a specific test case by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Test Case",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"Updated Test Case Title\",\r\n    \"status\": \"reviewed\",\r\n    \"priority\": \"should-have\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/testcases/{{testCaseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"testcases",
+								"{{testCaseId}}"
+							]
+						},
+						"description": "Update an existing test case"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Test Case",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/testcases/{{testCaseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"testcases",
+								"{{testCaseId}}"
+							]
+						},
+						"description": "Delete a specific test case"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Test Cases by PRD",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/testcases/prd/{{prdId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"testcases",
+								"prd",
+								"{{prdId}}"
+							]
+						},
+						"description": "Get all test cases for a specific PRD"
+					},
+					"response": []
+				}
+			],
+			"description": "Test case management endpoints"
+		},
+		{
+			"name": "Jira Integration",
+			"item": [
+				{
+					"name": "Configure Jira",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"jiraToken\": \"your_jira_api_token\",\r\n    \"jiraInstance\": \"https://your-domain.atlassian.net\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/jira/configure",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"jira",
+								"configure"
+							]
+						},
+						"description": "Configure Jira integration credentials"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Jira Ticket",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"testCaseId\": \"{{testCaseId}}\",\r\n    \"projectKey\": \"QA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/jira/tickets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"jira",
+								"tickets"
+							]
+						},
+						"description": "Create a Jira ticket from a test case"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Jira Tickets",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jira/tickets",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"jira",
+								"tickets"
+							]
+						},
+						"description": "Get all Jira tickets"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Jira Ticket",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/jira/tickets/{{ticketId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"jira",
+								"tickets",
+								"{{ticketId}}"
+							]
+						},
+						"description": "Get a specific Jira ticket"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Jira Ticket",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"status\": \"approved\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/jira/tickets/{{ticketId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"jira",
+								"tickets",
+								"{{ticketId}}"
+							]
+						},
+						"description": "Update a Jira ticket's status"
+					},
+					"response": []
+				}
+			],
+			"description": "Jira integration endpoints"
+		},
+		{
+			"name": "Git Integration",
+			"item": [
+				{
+					"name": "Configure Git",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"gitToken\": \"your_git_personal_access_token\",\r\n    \"gitUsername\": \"your_git_username\",\r\n    \"gitProvider\": \"github\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/git/configure",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"git",
+								"configure"
+							]
+						},
+						"description": "Configure Git integration credentials"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Pull Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"repository\": \"username/repo-name\",\r\n    \"sourceBranch\": \"feature/test-automation\",\r\n    \"targetBranch\": \"main\",\r\n    \"title\": \"Add test automation\",\r\n    \"description\": \"This PR adds automated test cases for the new features\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/git/pr",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"git",
+								"pr"
+							]
+						},
+						"description": "Create a pull request"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Pull Requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/git/pr?repository=username/repo-name",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"git",
+								"pr"
+							],
+							"query": [
+								{
+									"key": "repository",
+									"value": "username/repo-name"
+								}
+							]
+						},
+						"description": "Get all pull requests for a repository"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Pull Request",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/git/pr/{{prNumber}}?repository=username/repo-name",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"git",
+								"pr",
+								"{{prNumber}}"
+							],
+							"query": [
+								{
+									"key": "repository",
+									"value": "username/repo-name"
+								}
+							]
+						},
+						"description": "Get a specific pull request"
+					},
+					"response": []
+				}
+			],
+			"description": "Git integration endpoints"
+		},
+		{
+			"name": "CI Integration",
+			"item": [
+				{
+					"name": "Configure CI",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ciToken\": \"your_ci_api_token\",\r\n    \"ciInstance\": \"https://jenkins.example.com\",\r\n    \"ciProvider\": \"jenkins\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ci/configure",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ci",
+								"configure"
+							]
+						},
+						"description": "Configure CI integration credentials"
+					},
+					"response": []
+				},
+				{
+					"name": "Trigger Build",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"repository\": \"username/repo-name\",\r\n    \"branch\": \"main\",\r\n    \"testCaseId\": \"{{testCaseId}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/ci/build",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ci",
+								"build"
+							]
+						},
+						"description": "Trigger a CI build"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Builds",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/ci/build?repository=username/repo-name",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ci",
+								"build"
+							],
+							"query": [
+								{
+									"key": "repository",
+									"value": "username/repo-name"
+								}
+							]
+						},
+						"description": "Get all builds for a repository"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Build",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{authToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/ci/build/{{buildNumber}}?repository=username/repo-name",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"ci",
+								"build",
+								"{{buildNumber}}"
+							],
+							"query": [
+								{
+									"key": "repository",
+									"value": "username/repo-name"
+								}
+							]
+						},
+						"description": "Get a specific build"
+					},
+					"response": []
+				}
+			],
+			"description": "CI/CD integration endpoints"
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"health"
+					]
+				},
+				"description": "Check if the server is running"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "authToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "prdId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "testCaseId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ticketId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "prNumber",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "buildNumber",
+			"value": "",
+			"type": "string"
+		}
+	]
+} 
