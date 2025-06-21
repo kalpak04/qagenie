@@ -15,4 +15,5 @@ uvicorn==0.24.0
 python-multipart==0.0.6
 setuptools>=65.0.0
 wheel>=0.38.0
+toml==0.10.2
 # ibm-watsonx-ai-cli==0.1.8
