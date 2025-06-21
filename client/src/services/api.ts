@@ -10,6 +10,18 @@ const apiClient = axios.create({
   },
 });
 
+// Add response interceptor for debugging
+apiClient.interceptors.response.use(
+  (response) => {
+    console.log('API Response:', response.config.url, response.status, response.data);
+    return response;
+  },
+  (error) => {
+    console.error('API Error:', error.config?.url, error.response?.status, error.response?.data || error.message);
+    return Promise.reject(error);
+  }
+);
+
 // Add authentication interceptor
 apiClient.interceptors.request.use(
   (config) => {
@@ -17,6 +29,7 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    console.log('API Request:', config.url, config.method, config.data);
     return config;
   },
   (error) => Promise.reject(error)
@@ -35,21 +48,21 @@ export const authAPI = {
 // PRD API
 export const prdAPI = {
   uploadPRD: (formData: FormData) => 
-    apiClient.post('/prds', formData, {
+    apiClient.post('/prd', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     }),
   getAllPRDs: () => 
-    apiClient.get('/prds'),
+    apiClient.get('/prd'),
   getPRD: (id: string) => 
-    apiClient.get(`/prds/${id}`),
+    apiClient.get(`/prd/${id}`),
 };
 
 // Test Case API
 export const testCaseAPI = {
   generateTestCases: (prdId: string) => 
-    apiClient.post(`/testcases/generate`, { prdId }),
+    apiClient.post(`/prd/${prdId}/generate-test-cases`),
   getAllTestCases: () => 
     apiClient.get('/testcases'),
   getTestCasesByPRD: (prdId: string) => 

@@ -2,6 +2,82 @@
 
 QA-Genie is an AI-driven QA automation agent that streamlines the entire quality assurance pipeline by automating test case generation, ticket creation, and CI integration.
 
+## Quick Start with the Application Launcher
+
+We now provide a convenient Python script to launch all components of QA-Genie in the correct order:
+
+```bash
+# Make the script executable (Linux/Mac)
+chmod +x start_app.py
+
+# Run the application
+python start_app.py
+```
+
+The launcher script will:
+1. Check for required prerequisites (Python, Node.js, npm)
+2. Verify environment files and copy from examples if needed
+3. Install dependencies for all components
+4. Check port availability (8000, 5000, 3000)
+5. Start services in order: AI service → Server → Client
+6. Provide health checks and status monitoring
+
+Press Ctrl+C to gracefully stop all services when you're done.
+
+## Manual Setup and Installation
+
+If you prefer to set up and run the components manually, follow these steps:
+
+### Prerequisites
+
+- Node.js (v16+)
+- npm or yarn
+- MongoDB
+- Python 3.8+
+- pip
+
+### Local Development Setup
+
+1. Clone the repository
+2. Set up MongoDB locally
+3. Configure environment variables for each component
+
+### Server Setup
+
+```bash
+cd server
+cp env.example .env
+# Edit .env file with your configuration
+npm install
+npm run dev
+```
+
+### AI Service Setup
+
+```bash
+cd ai_service
+cp config.toml.example config.toml
+# Edit config.toml with your IBM Watson X AI credentials
+pip install -r requirements.txt
+uvicorn app:app --reload
+```
+
+### Client Setup
+
+```bash
+cd client
+npm install
+npm start
+```
+
+## Deployment
+
+The application is configured for deployment on various platforms:
+
+- Server: Render
+- Client: Vercel
+- AI Service: Custom deployment
+
 ## Features
 
 - 🧠 **PRD Analysis**: Ingest PRDs from PDF, Markdown, or plaintext
