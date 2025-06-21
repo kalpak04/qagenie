@@ -16,5 +16,5 @@ ENV HOST=0.0.0.0
 # Expose the port
 EXPOSE 8000
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"] 
+# Run the application with uvicorn worker
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "1", "--worker-class", "uvicorn.workers.UvicornWorker", "app:app"] 
