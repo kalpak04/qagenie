@@ -22,28 +22,32 @@ const PORT = process.env.PORT || 5000;
 // Security headers
 app.use(helmet({
   crossOriginResourcePolicy: false, // Allow cross-origin resource sharing
+  contentSecurityPolicy: false, // Disable CSP to avoid blocking resources
 }));
 
 // Compress all HTTP responses
 app.use(compression());
 
-// CORS configuration - Must be before other middleware
-// Handle CORS preflight options request separately to ensure it works properly
-app.options('*', cors({
-  origin: true, // Reflect the request origin
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
+// CORS configuration - Most permissive configuration for troubleshooting
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
 
-// Apply CORS for all routes
+// Add the regular cors middleware as backup
 app.use(cors({
-  origin: true, // Reflect the request origin, which automatically handles all domains
-  credentials: true,
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: false
 }));
 
 // Rate limiting

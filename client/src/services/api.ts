@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 // server api URL
-const API_URL = process.env.REACT_APP_API_URL || 'https://qa-genie-api.onrender.com/api';
+const API_URL = process.env.REACT_APP_API_URL || 'https://qa-genie-api.onrender.com';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
@@ -9,8 +9,8 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Enable CORS for all requests
-  withCredentials: true,
+  // Don't use withCredentials which can complicate CORS
+  withCredentials: false,
   // Increase timeout for production environments
   timeout: 30000, // 30 seconds
 });
@@ -21,47 +21,16 @@ apiClient.interceptors.response.use(
     console.log('API Response:', response.config.url, response.status, response.data);
     return response;
   },
-  async (error: AxiosError) => {
-    // Enhanced error handling with retries for network errors
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
-    
+  (error: AxiosError) => {
     // Log detailed error information
     console.error('API Error:', {
-      url: originalRequest?.url,
-      method: originalRequest?.method,
+      url: error.config?.url,
+      method: error.config?.method,
       status: error.response?.status,
       statusText: error.response?.statusText,
       data: error.response?.data,
       error: error.message,
-      // If it's a CORS error, it won't have response data
-      isCors: error.message.includes('Network Error') || error.message.includes('CORS'),
     });
-
-    // Handle CORS errors specifically
-    if (error.message.includes('Network Error') && !originalRequest?._retry) {
-      console.warn('Possible CORS or network error. Retrying with OPTIONS preflight.');
-      
-      // Mark as retried to prevent infinite loops
-      originalRequest._retry = true;
-      
-      try {
-        // Try to make a preflight request first
-        await axios({
-          method: 'OPTIONS',
-          url: `${API_URL}${originalRequest.url}`,
-          headers: {
-            'Access-Control-Request-Method': originalRequest.method || 'GET',
-            'Access-Control-Request-Headers': 'Content-Type, Authorization',
-            'Origin': window.location.origin,
-          }
-        });
-        
-        // If preflight succeeds, retry the original request
-        return apiClient(originalRequest);
-      } catch (preflightError) {
-        console.error('Preflight request failed:', preflightError);
-      }
-    }
     
     return Promise.reject(error);
   }
@@ -76,10 +45,6 @@ apiClient.interceptors.request.use(
       config.headers = config.headers || {};
       config.headers['Authorization'] = `Bearer ${token}`;
     }
-    
-    // Add origin header to help with CORS
-    config.headers = config.headers || {};
-    config.headers['Origin'] = window.location.origin;
     
     console.log('API Request:', config.url, config.method, config.data);
     return config;
