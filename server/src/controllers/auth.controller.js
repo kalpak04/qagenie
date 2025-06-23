@@ -1,4 +1,4 @@
-const User = require('../models/user.model');
+const { User } = require('../models');
 const { logger } = require('../utils/logger');
 
 /**
@@ -11,7 +11,7 @@ const register = async (req, res, next) => {
     const { name, email, password } = req.body;
 
     // Check if user already exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ where: { email } });
 
     if (userExists) {
       return res.status(400).json({
@@ -34,7 +34,7 @@ const register = async (req, res, next) => {
       success: true,
       token,
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -64,7 +64,7 @@ const login = async (req, res, next) => {
     }
 
     // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.scope('withPassword').findOne({ where: { email } });
 
     if (!user) {
       return res.status(401).json({
@@ -90,7 +90,7 @@ const login = async (req, res, next) => {
       success: true,
       token,
       user: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -109,12 +109,12 @@ const login = async (req, res, next) => {
  */
 const getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id);
+    const user = await User.findByPk(req.user.id);
 
     res.status(200).json({
       success: true,
       data: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -151,15 +151,16 @@ const updateProfile = async (req, res, next) => {
       (key) => fieldsToUpdate[key] === undefined && delete fieldsToUpdate[key]
     );
 
-    const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
-      new: true,
-      runValidators: true,
+    await User.update(fieldsToUpdate, {
+      where: { id: req.user.id }
     });
+    
+    const user = await User.findByPk(req.user.id);
 
     res.status(200).json({
       success: true,
       data: {
-        id: user._id,
+        id: user.id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -180,7 +181,7 @@ const updateProfile = async (req, res, next) => {
  */
 const updatePassword = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.scope('withPassword').findByPk(req.user.id);
 
     // Check current password
     if (!(await user.matchPassword(req.body.currentPassword))) {

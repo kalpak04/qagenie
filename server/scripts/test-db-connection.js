@@ -1,18 +1,31 @@
 require('dotenv').config();
-const mongoose = require('mongoose');
-const { connectDB, closeDB } = require('../src/utils/db');
+const { sequelize } = require('../src/utils/db');
+const { logger } = require('../src/utils/logger');
 
-async function testConnection() {
+/**
+ * Test the PostgreSQL connection
+ */
+const testConnection = async () => {
   try {
-    console.log('Attempting to connect to MongoDB...');
-    await connectDB();
-    console.log('Connection successful!');
-    console.log('Database name:', mongoose.connection.db.databaseName);
-    console.log('Collections:', await mongoose.connection.db.listCollections().toArray());
-    await closeDB();
+    // Test the database connection
+    await sequelize.authenticate();
+    logger.info('PostgreSQL connection has been established successfully.');
+    
+    // Get database information
+    const [results] = await sequelize.query('SELECT version();');
+    logger.info(`PostgreSQL Version: ${results[0].version}`);
+    
+    // Get current database name
+    const [dbResults] = await sequelize.query('SELECT current_database();');
+    logger.info(`Current Database: ${dbResults[0].current_database}`);
+    
+    process.exit(0);
   } catch (error) {
-    console.error('Error connecting to the database:', error.message);
+    logger.error(`Unable to connect to PostgreSQL: ${error.message}`);
+    console.error(error);
+    process.exit(1);
   }
-}
+};
 
+// Run the connection test
 testConnection(); 

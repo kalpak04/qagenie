@@ -26,12 +26,12 @@ fi
 python_version=$(python3 --version | cut -d " " -f 2)
 echo -e "\033[0;32m✓ Python $python_version\033[0m"
 
-# Check MongoDB
-if ! command -v mongod &> /dev/null; then
-    echo -e "\033[1;33mWarning: MongoDB is not installed locally. We'll use Docker for MongoDB.\033[0m"
+# Check PostgreSQL
+if ! command -v psql &> /dev/null; then
+    echo -e "\033[1;33mWarning: PostgreSQL client is not installed locally. We'll use Docker for PostgreSQL.\033[0m"
 else
-    mongo_version=$(mongod --version | grep "db version" | cut -d " " -f 3)
-    echo -e "\033[0;32m✓ MongoDB $mongo_version\033[0m"
+    pg_version=$(psql --version | cut -d " " -f 3)
+    echo -e "\033[0;32m✓ PostgreSQL client $pg_version\033[0m"
 fi
 
 # Check Docker

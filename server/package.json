@@ -6,8 +6,11 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed": "node scripts/seed.js",
-    "create-indexes": "node scripts/create-indexes.js",
+    "migrate": "node scripts/migrate-db.js",
+    "migrate:prod": "cross-env NODE_ENV=production node scripts/migrate-prod.js",
+    "prod": "cross-env NODE_ENV=production node index.js",
+    "check-env": "node check-env.js",
+    "test-db": "node scripts/test-db-connection.js",
     "test": "jest"
   },
   "keywords": [
@@ -28,16 +31,18 @@
     "helmet": "^8.1.0",
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.1",
-    "mongodb": "^6.17.0",
-    "mongoose": "^7.4.2",
     "multer": "^1.4.5-lts.1",
     "openai": "^4.0.0",
     "pdf-parse": "^1.1.1",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
     "qa-genie": "file:..",
+    "sequelize": "^6.37.1",
     "simple-git": "^3.19.1",
     "winston": "^3.10.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "jest": "^29.6.0",
     "nodemon": "^3.0.1",
     "supertest": "^6.3.3"

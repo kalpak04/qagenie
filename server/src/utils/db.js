@@ -1,32 +1,46 @@
-const mongoose = require('mongoose');
+const { Sequelize } = require('sequelize');
 const { logger } = require('./logger');
 const dbConfig = require('../config/database');
 
+// Create a Sequelize instance
+const sequelize = new Sequelize(
+  dbConfig.database,
+  dbConfig.username,
+  dbConfig.password,
+  {
+    host: dbConfig.host,
+    dialect: dbConfig.dialect,
+    port: dbConfig.port,
+    logging: dbConfig.logging,
+    pool: dbConfig.pool,
+    dialectOptions: dbConfig.dialectOptions
+  }
+);
+
 /**
- * Connect to MongoDB
- * @returns {Promise} Mongoose connection promise
+ * Connect to PostgreSQL
+ * @returns {Promise} Sequelize connection promise
  */
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(dbConfig.uri, dbConfig.options);
-
-    logger.info(`MongoDB Connected: ${conn.connection.host}`);
-    return conn;
+    await sequelize.authenticate();
+    logger.info('PostgreSQL Connected successfully');
+    return sequelize;
   } catch (error) {
-    logger.error(`Error connecting to MongoDB: ${error.message}`);
+    logger.error(`Error connecting to PostgreSQL: ${error.message}`);
     process.exit(1);
   }
 };
 
 /**
- * Close MongoDB connection
+ * Close PostgreSQL connection
  */
 const closeDB = async () => {
   try {
-    await mongoose.connection.close();
-    logger.info('MongoDB connection closed');
+    await sequelize.close();
+    logger.info('PostgreSQL connection closed');
   } catch (error) {
-    logger.error(`Error closing MongoDB connection: ${error.message}`);
+    logger.error(`Error closing PostgreSQL connection: ${error.message}`);
     process.exit(1);
   }
 };
@@ -46,7 +60,9 @@ const setupDB = () => {
   });
 };
 
+// Export the sequelize instance as well
 module.exports = {
+  sequelize,
   connectDB,
   closeDB,
   setupDB,

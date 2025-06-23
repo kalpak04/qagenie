@@ -1,79 +1,113 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { sequelize } = require('../utils/db');
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'Please add a name'],
-      trim: true,
-    },
-    email: {
-      type: String,
-      required: [true, 'Please add an email'],
-      unique: true,
-      match: [
-        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
-        'Please add a valid email',
-      ],
-      lowercase: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: [true, 'Please add a password'],
-      minlength: [6, 'Password must be at least 6 characters'],
-      select: false, // Don't return password in queries
-    },
-    role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
-    },
-    resetPasswordToken: String,
-    resetPasswordExpire: Date,
-    jiraToken: {
-      type: String,
-      select: false,
-    },
-    jiraInstance: String,
-    gitToken: {
-      type: String,
-      select: false,
-    },
-    gitUsername: String,
-    ciToken: {
-      type: String,
-      select: false,
-    },
-    ciInstance: String,
+const User = sequelize.define('User', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'Please add a name' }
+    }
   },
-  {
-    timestamps: true,
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+    validate: {
+      isEmail: { msg: 'Please add a valid email' },
+      notEmpty: { msg: 'Please add an email' }
+    }
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    validate: {
+      len: {
+        args: [6, 100],
+        msg: 'Password must be at least 6 characters'
+      },
+      notEmpty: { msg: 'Please add a password' }
+    }
+  },
+  role: {
+    type: DataTypes.STRING,
+    defaultValue: 'user',
+    validate: {
+      isIn: {
+        args: [['user', 'admin']],
+        msg: 'Role must be either user or admin'
+      }
+    }
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  resetPasswordExpire: {
+    type: DataTypes.DATE,
+    allowNull: true
+  },
+  jiraToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  jiraInstance: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  gitToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  gitUsername: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  ciToken: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  ciInstance: {
+    type: DataTypes.STRING,
+    allowNull: true
   }
-);
-
-// Encrypt password before saving
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    next();
+}, {
+  timestamps: true,
+  defaultScope: {
+    attributes: { exclude: ['password', 'jiraToken', 'gitToken', 'ciToken'] }
+  },
+  scopes: {
+    withPassword: {
+      attributes: { include: ['password'] }
+    }
+  },
+  hooks: {
+    beforeCreate: async (user) => {
+      if (user.password) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    },
+    beforeUpdate: async (user) => {
+      if (user.changed('password')) {
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(user.password, salt);
+      }
+    }
   }
-  
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
 });
 
-// Sign and return JWT
-userSchema.methods.getSignedJwtToken = function () {
-  return jwt.sign({ id: this._id }, process.env.JWT_SECRET, {
+// Instance methods
+User.prototype.getSignedJwtToken = function() {
+  return jwt.sign({ id: this.id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '30d',
   });
 };
 
-// Match user entered password to hashed password in database
-userSchema.methods.matchPassword = async function (enteredPassword) {
+User.prototype.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-module.exports = mongoose.model('User', userSchema); 
+module.exports = User; 

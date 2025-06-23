@@ -1,5 +1,8 @@
 FROM node:16-alpine
 
+# Install PostgreSQL client
+RUN apk add --no-cache postgresql-client
+
 # Create app directory
 WORKDIR /app
 

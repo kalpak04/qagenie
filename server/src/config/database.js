@@ -1,38 +1,67 @@
 /**
- * MongoDB configuration options
+ * PostgreSQL configuration options with Sequelize
  */
 const dbConfig = {
   development: {
-    uri: process.env.MONGODB_URI || 'mongodb://localhost:27017/qa-genie',
-    options: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+    dialect: 'postgres',
+    host: process.env.PG_HOST || 'localhost',
+    port: process.env.PG_PORT || 5432,
+    username: process.env.PG_USER || 'postgres',
+    password: process.env.PG_PASSWORD || 'postgres',
+    database: process.env.PG_DATABASE || 'qa_genie',
+    logging: console.log,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   },
   test: {
-    uri: process.env.MONGODB_TEST_URI || 'mongodb://localhost:27017/qa-genie-test',
-    options: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+    dialect: 'postgres',
+    host: process.env.PG_HOST || 'localhost',
+    port: process.env.PG_PORT || 5432,
+    username: process.env.PG_USER || 'postgres',
+    password: process.env.PG_PASSWORD || 'postgres',
+    database: process.env.PG_TEST_DATABASE || 'qa_genie_test',
+    logging: false,
+    pool: {
+      max: 5,
+      min: 0,
+      acquire: 30000,
+      idle: 10000
     }
   },
   production: {
-    uri: process.env.MONGODB_URI,
-    options: {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // Keep trying to send operations for 5 seconds
-      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-      keepAlive: true,
-      keepAliveInitialDelay: 300000, // 5 minutes
-      connectTimeoutMS: 10000, // Give up initial connection after 10 seconds
-      maxPoolSize: 50, // Maintain up to 50 socket connections
-      minPoolSize: 10, // Maintain at least 10 socket connections
-    }
+    dialect: 'postgres',
+    host: process.env.PG_HOST || 'localhost',
+    port: process.env.PG_PORT || 5432,
+    username: process.env.PG_USER || 'postgres',
+    password: process.env.PG_PASSWORD || 'postgres',
+    database: process.env.PG_DATABASE || 'qa_genie_prod',
+    logging: false,
+    pool: {
+      max: 50,
+      min: 10,
+      acquire: 30000,
+      idle: 10000
+    },
+    // Only use SSL if explicitly enabled
+    ...(process.env.PG_USE_SSL === 'true' && {
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
+      }
+    })
   }
 };
 
 // Get the current environment or default to development
 const env = process.env.NODE_ENV || 'development';
+
+// Log which environment is being used
+console.log(`Using database config for environment: ${env}`);
 
 module.exports = dbConfig[env]; 

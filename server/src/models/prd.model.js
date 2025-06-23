@@ -1,61 +1,76 @@
-const mongoose = require('mongoose');
+const { DataTypes } = require('sequelize');
+const { sequelize } = require('../utils/db');
 
-const prdSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: [true, 'Please add a title'],
-      trim: true,
-      maxlength: [100, 'Title cannot be more than 100 characters'],
-    },
-    description: {
-      type: String,
-      required: [true, 'Please add a description'],
-    },
-    content: {
-      type: String,
-      required: [true, 'PRD content is required'],
-    },
-    format: {
-      type: String,
-      enum: ['markdown', 'pdf', 'text'],
-      default: 'markdown',
-    },
-    fileUrl: {
-      type: String,
-    },
-    originalFilename: {
-      type: String,
-    },
-    user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-    },
-    project: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Project',
-    },
-    testCases: [{
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'TestCase',
-    }],
-    status: {
-      type: String,
-      enum: ['draft', 'analyzed', 'test_cases_generated', 'tickets_created', 'features_generated', 'complete'],
-      default: 'draft',
-    },
-    metadata: {
-      type: Object,
-      default: {},
-    },
+const PRD = sequelize.define('PRD', {
+  title: {
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'Please add a title' },
+      len: {
+        args: [1, 100],
+        msg: 'Title cannot be more than 100 characters'
+      }
+    }
   },
-  {
-    timestamps: true,
+  description: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'Please add a description' }
+    }
+  },
+  content: {
+    type: DataTypes.TEXT,
+    allowNull: false,
+    validate: {
+      notEmpty: { msg: 'PRD content is required' }
+    }
+  },
+  format: {
+    type: DataTypes.STRING,
+    defaultValue: 'markdown',
+    validate: {
+      isIn: {
+        args: [['markdown', 'pdf', 'text']],
+        msg: 'Format must be markdown, pdf, or text'
+      }
+    }
+  },
+  fileUrl: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  originalFilename: {
+    type: DataTypes.STRING,
+    allowNull: true
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    field: 'user_id'
+  },
+  projectId: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+    field: 'project_id'
+  },
+  status: {
+    type: DataTypes.STRING,
+    defaultValue: 'draft',
+    validate: {
+      isIn: {
+        args: [['draft', 'analyzed', 'test_cases_generated', 'tickets_created', 'features_generated', 'complete']],
+        msg: 'Status must be draft, analyzed, test_cases_generated, tickets_created, features_generated, or complete'
+      }
+    }
+  },
+  metadata: {
+    type: DataTypes.JSONB,
+    defaultValue: {}
   }
-);
+}, {
+  timestamps: true
+});
 
-// Add full text search index
-prdSchema.index({ title: 'text', description: 'text', content: 'text' });
-
-module.exports = mongoose.model('PRD', prdSchema); 
+module.exports = PRD; 

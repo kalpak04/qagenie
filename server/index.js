@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const compression = require('compression');
 const { logger } = require('./src/utils/logger');
 const { connectDB } = require('./src/utils/db');
+const { syncDatabase } = require('./src/models');
 const authRoutes = require('./src/routes/auth.routes');
 const prdRoutes = require('./src/routes/prd.routes');
 const testCaseRoutes = require('./src/routes/testCase.routes');
@@ -64,10 +65,15 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use(errorHandler);
 
-// Connect to MongoDB and start server
+// Connect to PostgreSQL and start server
 const startServer = async () => {
   try {
+    // Connect to database
     await connectDB();
+    
+    // Sync models with database (set to false in production)
+    const force = process.env.NODE_ENV === 'development' && process.env.DB_SYNC_FORCE === 'true';
+    await syncDatabase(force);
     
     // For production, you'd use a real SSL certificate
     // This is just to demonstrate the concept

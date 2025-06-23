@@ -1,19 +1,25 @@
 version: '3.8'
 
 services:
-  # MongoDB Service
-  mongo:
-    image: mongo:5.0
+  # PostgreSQL Service
+  postgres:
+    image: postgres:15
     restart: always
     ports:
-      - "27017:27017"
+      - "5432:5432"
     volumes:
-      - mongo_data:/data/db
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME:-root}
-      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD:-password}
+      POSTGRES_USER: ${PG_USER:-postgres}
+      POSTGRES_PASSWORD: ${PG_PASSWORD:-postgres}
+      POSTGRES_DB: ${PG_DATABASE:-qa_genie}
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     logging:
       driver: "json-file"
       options:
@@ -44,7 +50,7 @@ services:
     networks:
       - app-network
     depends_on:
-      - mongo
+      - postgres
     logging:
       driver: "json-file"
       options:
@@ -60,7 +66,10 @@ services:
     env_file:
       - ./server/env
     environment:
-      - MONGODB_URI=mongodb://${MONGO_INITDB_ROOT_USERNAME:-root}:${MONGO_INITDB_ROOT_PASSWORD:-password}@mongo:27017/qa-genie?authSource=admin
+      - PG_HOST=postgres
+      - PG_USER=${PG_USER:-postgres}
+      - PG_PASSWORD=${PG_PASSWORD:-postgres}
+      - PG_DATABASE=${PG_DATABASE:-qa_genie}
       - AI_SERVICE_URL=http://ai-service:8000
       - NODE_ENV=production
     deploy:
@@ -77,7 +86,7 @@ services:
     networks:
       - app-network
     depends_on:
-      - mongo
+      - postgres
       - ai-service
     logging:
       driver: "json-file"
@@ -108,4 +117,4 @@ networks:
     driver: bridge
 
 volumes:
-  mongo_data: 
+  postgres_data: 
