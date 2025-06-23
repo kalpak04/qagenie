@@ -20,10 +20,31 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Security headers
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false, // Allow cross-origin resource sharing
+}));
 
 // Compress all HTTP responses
 app.use(compression());
+
+// CORS configuration - Must be before other middleware
+// Handle CORS preflight options request separately to ensure it works properly
+app.options('*', cors({
+  origin: true, // Reflect the request origin
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+}));
+
+// Apply CORS for all routes
+app.use(cors({
+  origin: true, // Reflect the request origin, which automatically handles all domains
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -38,14 +59,6 @@ const limiter = rateLimit({
 app.use(limiter);
 
 // Middleware
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://qa-genie.onrender.com', 'https://www.qa-genie.onrender.com', 'https://qa-genie-api.onrender.com', 'http://localhost:3000'] 
-    : '*', // Allow all origins in development
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

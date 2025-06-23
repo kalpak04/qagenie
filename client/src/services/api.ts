@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
-// Configure API URL - Ensure this matches the server's configuration
+// server api URL
 const API_URL = process.env.REACT_APP_API_URL || 'https://qa-genie-api.onrender.com/api';
 
 // Create axios instance with base configuration
@@ -9,6 +9,10 @@ const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Enable CORS for all requests
+  withCredentials: true,
+  // Increase timeout for production environments
+  timeout: 30000, // 30 seconds
 });
 
 // Add response interceptor for debugging
@@ -17,8 +21,48 @@ apiClient.interceptors.response.use(
     console.log('API Response:', response.config.url, response.status, response.data);
     return response;
   },
-  (error) => {
-    console.error('API Error:', error.config?.url, error.response?.status, error.response?.data || error.message);
+  async (error: AxiosError) => {
+    // Enhanced error handling with retries for network errors
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+    
+    // Log detailed error information
+    console.error('API Error:', {
+      url: originalRequest?.url,
+      method: originalRequest?.method,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      error: error.message,
+      // If it's a CORS error, it won't have response data
+      isCors: error.message.includes('Network Error') || error.message.includes('CORS'),
+    });
+
+    // Handle CORS errors specifically
+    if (error.message.includes('Network Error') && !originalRequest?._retry) {
+      console.warn('Possible CORS or network error. Retrying with OPTIONS preflight.');
+      
+      // Mark as retried to prevent infinite loops
+      originalRequest._retry = true;
+      
+      try {
+        // Try to make a preflight request first
+        await axios({
+          method: 'OPTIONS',
+          url: `${API_URL}${originalRequest.url}`,
+          headers: {
+            'Access-Control-Request-Method': originalRequest.method || 'GET',
+            'Access-Control-Request-Headers': 'Content-Type, Authorization',
+            'Origin': window.location.origin,
+          }
+        });
+        
+        // If preflight succeeds, retry the original request
+        return apiClient(originalRequest);
+      } catch (preflightError) {
+        console.error('Preflight request failed:', preflightError);
+      }
+    }
+    
     return Promise.reject(error);
   }
 );
@@ -28,15 +72,22 @@ apiClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      // Fix TypeScript error by using type assertion 
+      config.headers = config.headers || {};
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
+    
+    // Add origin header to help with CORS
+    config.headers = config.headers || {};
+    config.headers['Origin'] = window.location.origin;
+    
     console.log('API Request:', config.url, config.method, config.data);
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Authentication API
+// Authentication API - Include the full path to ensure it works with both server configurations
 export const authAPI = {
   login: (email: string, password: string) => 
     apiClient.post('/auth/login', { email, password }),
