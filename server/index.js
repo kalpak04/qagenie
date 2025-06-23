@@ -40,8 +40,8 @@ app.use(limiter);
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-production-domain.com', 'https://www.your-production-domain.com'] 
-    : 'http://localhost:3000',
+    ? ['https://qa-genie.onrender.com', 'https://www.qa-genie.onrender.com', 'https://qa-genie-api.onrender.com', 'http://localhost:3000'] 
+    : '*', // Allow all origins in development
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -51,11 +51,17 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes);
 app.use('/api/prd', prdRoutes);
+app.use('/prd', prdRoutes);
 app.use('/api/testcases', testCaseRoutes);
+app.use('/testcases', testCaseRoutes);
 app.use('/api/jira', jiraRoutes);
+app.use('/jira', jiraRoutes);
 app.use('/api/git', gitRoutes);
+app.use('/git', gitRoutes);
 app.use('/api/ci', ciRoutes);
+app.use('/ci', ciRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

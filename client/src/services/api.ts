@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Configure API URL - Ensure this matches the server's configuration
+const API_URL = process.env.REACT_APP_API_URL || 'https://qa-genie-api.onrender.com/api';
 
 // Create axios instance with base configuration
 const apiClient = axios.create({
